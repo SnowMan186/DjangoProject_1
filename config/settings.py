@@ -11,7 +11,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 
+import environ
+import os
 from pathlib import Path
+
+
+env = environ.Env()
+environ.Env.read_env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,12 +28,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=-gc!2#$3a2wd@mh%d#2$98h$1v&mwi^h94qvk=8p3l99ptakr'
+SECRET_KEY = env.str('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost'])
 
 
 # Application definition
@@ -78,11 +84,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'skystore_db',
-        'USER': 'postgres',
-        'PASSWORD': '27595653',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': env.str('DB_NAME'),
+        'USER': env.str('DB_USER'),
+        'PASSWORD': env.str('DB_PASSWORD'),
+        'HOST': env.str('DB_HOST'),
+        'PORT': env.int('DB_PORT', default=5432),
     }
 }
 
@@ -122,3 +128,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# Настройки для обработки медиафайлов
+MEDIA_URL = '/media/'  # URL для обращения к медиафайлам
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Физическое расположение хранилища медиафайлов
