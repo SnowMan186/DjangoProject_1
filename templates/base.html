@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Интернет-магазин{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    {% include 'includes/main_menu.html' %}
+    <header>
+        <h1>Магазин техники</h1>
+    </header>
+    <section>
+        {% block content %}{% endblock %}
+    </section>
+    <footer>
+        © Мой магазин, 2023
+    </footer>
+</body>
+</html>
