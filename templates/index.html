@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Список товаров</h1>
+    <ul>
+        {% for product in products %}
+            <li>
+                <a href="{% url 'catalog:product_detail' product.pk %}">
+                    <strong>{{ product.name }}</strong>
+                </a>
+                <br/>
+                Цена: {{ product.price }}
+                <br/>
+                Изображение: <img src="{{ product.image.url }}" width="100px" height="auto"/>
+                <br/>
+                Описание: {{ product.description|truncatechars:100 }}
+            </li>
+        {% empty %}
+            Нет товаров
+        {% endfor %}
+    </ul>
+{% endblock %}
