@@ -1,5 +1,6 @@
-from django.views.generic import TemplateView, DetailView, ListView
+from django.views.generic import TemplateView, DetailView, ListView, CreateView, UpdateView, DeleteView
 from .models import Product
+from .forms import ProductForm
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -16,3 +17,25 @@ class IndexView(ListView):
     model = Product
     template_name = 'catalog/index.html'
     context_object_name = 'products'
+
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_create.html'
+    success_url = '/products/'
+
+class ProductListView(ListView):
+    model = Product
+    template_name = 'catalog/product_list.html'
+    context_object_name = 'products'
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_update.html'
+    success_url = '/products/'
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
+    success_url = '/products/'
