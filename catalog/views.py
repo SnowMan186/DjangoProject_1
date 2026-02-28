@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView, DetailView, ListView, CreateView, UpdateView, DeleteView
 from .models import Product
 from .forms import ProductForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -18,11 +19,11 @@ class IndexView(ListView):
     template_name = 'catalog/index.html'
     context_object_name = 'products'
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_create.html'
-    success_url = '/products/'
+    success_url = '/'
 
 class ProductListView(ListView):
     model = Product

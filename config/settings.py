@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalog',
     'blog.apps.BlogConfig'
+    'users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
@@ -112,6 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -134,3 +136,11 @@ STATIC_URL = 'static/'
 # Настройки для обработки медиафайлов
 MEDIA_URL = '/media/'  # URL для обращения к медиафайлам
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Физическое расположение хранилища медиафайлов
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'your_yandex_email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your_app_specific_password'
+DEFAULT_FROM_EMAIL = 'your_yandex_email@gmail.com'
