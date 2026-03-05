@@ -1,15 +1,21 @@
 from django.core.management.base import BaseCommand
-from catalog.models import Product, Category
-from django.core.serializers import deserialize
+from catalog.models import Product
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 
 class Command(BaseCommand):
-    help = 'Clear all product/category data and load test data.'
+    help = 'Creates groups and permissions'
 
     def handle(self, *args, **options):
-        Product.objects.all().delete()
-        Category.objects.all().delete()
+        content_type = ContentType.objects.get_for_model(Product)
+        permission = Permission.objects.create(
+            codename='can_unpublish_product',
+            name='Может снимать продукт с публикации',
+            content_type=content_type
+        )
 
-        with open('fixtures/data.json') as file:
-            deserialized_objects = deserialize("json", file.read())
-            for obj in deserialized_objects:
-                obj.save()
+        group_moderators = Group.objects.create(name='Модераторы продуктов')
+        group_moderators.permissions.add(permission)
+        group_moderators.permissions.add(Permission.objects.get(codename='delete_product'))
+
+

@@ -1,0 +1,3 @@
+{% if request.user.has_perm('catalog.can_unpublish_product') %}
+    <a href="{% url 'unpublish_product' product.id %}">Отменить публикацию</a>
+{% endif %}
