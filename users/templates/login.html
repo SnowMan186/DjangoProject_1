@@ -1,0 +1,10 @@
+<h1>Войти</h1>
+<form method="post">
+    {% csrf_token %}
+    <input type="email" name="email" placeholder="E-mail">
+    <input type="password" name="password" placeholder="Пароль">
+    <button type="submit">Войти</button>
+</form>
+{% if error_message %}
+    <p style="color: red;">{{ error_message }}</p>
+{% endif %}
