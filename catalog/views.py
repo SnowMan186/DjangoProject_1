@@ -4,6 +4,8 @@ from .forms import ProductForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import cache_page
+from catalog.services import get_products_in_category
 
 
 class HomeView(TemplateView):
@@ -73,3 +75,12 @@ def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product.delete()
     return redirect('product_list')
+
+
+@cache_page(60 * 15)
+def product_detail(request, product_id):
+    pass
+
+def category_products(request, category_slug):
+    products = get_products_in_category(category_slug)
+    return render(request, 'catalog/category_products.html', {'products': products})
