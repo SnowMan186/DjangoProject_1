@@ -1,11 +1,12 @@
 from django.views.generic import TemplateView, DetailView, ListView, CreateView, UpdateView, DeleteView
-from .models import Product
+from .models import Product, Category
 from .forms import ProductForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 from catalog.services import get_products_in_category
+
 
 
 class HomeView(TemplateView):
@@ -46,6 +47,22 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'catalog/product_confirm_delete.html'
     success_url = '/products/'
 
+class CategoryView(ListView):
+    model = Product
+    template_name = "catalog/category.html"
+    paginate_by = 6
+    context_object_name = "products"
+
+    def get_queryset(self):
+        category_id = self.kwargs["category_id"]
+        self.category = get_object_or_404(Category, pk=category_id)
+        return get_products_in_category(category_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["category"] = self.category
+        return context
+
 
 @permission_required('catalog.can_unpublish_product')
 def unpublish_product(request, product_id):
@@ -71,6 +88,7 @@ def create_product(request):
 
 
 @user_passes_test(lambda u: u.groups.filter(name='Модераторы продуктов').exists() or u == Product.owner)
+
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product.delete()
