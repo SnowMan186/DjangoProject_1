@@ -1,0 +1,104 @@
+from django.views.generic import TemplateView, DetailView, ListView, CreateView, UpdateView, DeleteView
+from .models import Product, Category
+from .forms import ProductForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import cache_page
+from catalog.services import get_products_in_category
+
+
+
+class HomeView(TemplateView):
+    template_name = 'home.html'
+
+class ContactsView(TemplateView):
+    template_name = 'contacts.html'
+
+class ProductDetailView(LoginRequiredMixin, DetailView):
+    model = Product
+    template_name = 'catalog/product_detail.html'
+    context_object_name = 'product'
+
+class IndexView(ListView):
+    model = Product
+    template_name = 'catalog/index.html'
+    context_object_name = 'products'
+
+class ProductCreateView(LoginRequiredMixin, CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_create.html'
+    success_url = '/'
+
+class ProductListView(ListView):
+    model = Product
+    template_name = 'catalog/product_list.html'
+    context_object_name = 'products'
+
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_update.html'
+    success_url = '/products/'
+
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
+    success_url = '/products/'
+
+class CategoryView(ListView):
+    model = Product
+    template_name = "catalog/category.html"
+    paginate_by = 6
+    context_object_name = "products"
+
+    def get_queryset(self):
+        category_id = self.kwargs["category_id"]
+        self.category = get_object_or_404(Category, pk=category_id)
+        return get_products_in_category(category_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["category"] = self.category
+        return context
+
+
+@permission_required('catalog.can_unpublish_product')
+def unpublish_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.publication_status = 'draft'
+    product.save()
+    return redirect('product_list')
+
+
+@login_required
+def create_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.owner = request.user
+            product.save()
+            return redirect('product_list')
+    else:
+        form = ProductForm()
+    return render(request, 'catalog/product_form.html', {'form': form})
+
+
+
+@user_passes_test(lambda u: u.groups.filter(name='Модераторы продуктов').exists() or u == Product.owner)
+
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    return redirect('product_list')
+
+
+@cache_page(60 * 15)
+def product_detail(request, product_id):
+    pass
+
+def category_products(request, category_slug):
+    products = get_products_in_category(category_slug)
+    return render(request, 'catalog/category_products.html', {'products': products})
